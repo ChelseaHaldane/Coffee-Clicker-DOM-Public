@@ -23,7 +23,7 @@ if (typeof process === 'undefined') {
   /* 1. Add a 'click' event listener to the bigCoffee element(giant coffee emoji) you referenced above.
    * It should call the clickCoffee function below and be passed the global data object.*/
   // your code here
-  bigCoffee.addEventListener('click', clickE => {
+  bigCoffee.addEventListener('click', () => {
     clickCoffee(data);
   })
   /* 2. Add a 'click' event listener to the producerContainer(Coffee Producers panel) you referenced above.
@@ -51,8 +51,7 @@ function updateCoffeeView(coffeeQty) {
 function clickCoffee(data) {
   // your code here
   data.coffee++;
-  updateCoffeeView(data.coffee);
-  renderProducers(data);
+  updateUI(data);
 }
 
 /**************
@@ -99,7 +98,7 @@ function makeProducerDiv(producer) {
   const html = `
   <div class="producer-column">
     <div class="producer-title">${displayName}</div>
-    <button type="button" id="buy_${producer.id}">Buy</button>
+    <button type="button" id="buy_${producer.id}" data-producer-id="${producer.id}">Buy</button>
   </div>
   <div class="producer-column">
     <div>Quantity: ${producer.qty}</div>
@@ -123,8 +122,8 @@ function deleteAllChildNodes(parent) {
 
 function renderProducers(data) {
   // your code here
-  unlockProducers(data.producers, data.coffee)
-  const producerContainer = document.querySelector('#producer_container');
+  unlockProducers(data.producers, data.coffee);
+  const producerContainer = document.getElementById("producer_container");
   deleteAllChildNodes(producerContainer);
   data.producers.forEach(producer => {
     if (producer.unlocked) {
@@ -176,6 +175,8 @@ function attemptToBuyProducer(data, producerId) {
     let tempPrice = updatePrice(producerObject.price);
     producerObject.price = tempPrice;
     data.totalCPS += producerObject.cps;
+  } else {
+    window.alert("Not enough coffee!");
   }
 
   return canAfford;
@@ -183,12 +184,26 @@ function attemptToBuyProducer(data, producerId) {
 
 function buyButtonClick(event, data) {
   // your code here
-  const targetSlicedId = event.target.id.slice(4);
-  const attempt = attemptToBuyProducer(data, targetSlicedId);
-}
+  if (event.target.tagName !== 'BUTTON') {
+    return;
+  }
+  const targetProducerId = event.target.id.slice(4);
+  const attempt = attemptToBuyProducer(data, targetProducerId);
+  updateUI(data);
 
+
+}
+function updateUI(data) {
+  updateCoffeeView(data.coffee);
+  renderProducers(data);
+  updateCPSView(data.totalCPS);
+
+}
 function tick(data) {
   // your code here
+  data.coffee += data.totalCPS;
+  updateUI(data);
+
 }
 
 /**********************************
