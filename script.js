@@ -3,7 +3,25 @@
 
 /***The line below allows us to access the data from the window object.
  * This comes from the data.js file***/
-const data = window.data;
+function loadGame() {
+
+  //look for saved game & return it if it exists. 
+  const gameState = localStorage.getItem("gameState");
+  if (!!gameState) {
+    return JSON.parse(localStorage.getItem("gameState"));
+  } else {
+    return window.data;
+  }
+}
+
+
+const data = loadGame();
+
+function saveGame(data) {
+  const gameState = JSON.stringify(data);
+  localStorage.setItem("gameState", gameState);
+}
+
 
 /***Before we can begin manipulating the DOM we need to gain access to two DOM Nodes***/
 // 1. Declare a variable bigCoffee that holds reference to the element with id 'big_coffee'.
@@ -197,6 +215,7 @@ function updateUI(data) {
   updateCoffeeView(data.coffee);
   renderProducers(data);
   updateCPSView(data.totalCPS);
+  saveGame(data);
 
 }
 function tick(data) {
